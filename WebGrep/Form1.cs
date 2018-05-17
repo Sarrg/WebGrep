@@ -144,15 +144,13 @@ namespace WebGrep
 
         public void Webcrawl(string url)
         {
-            if (url.Split('/').Count() - 2 - currentUrl.Split('/').Count() < max_depth)
+            if (url.Split('/').Count() - currentUrl.Split('/').Count() < max_depth)
             {
                 var task = Task.Run(() =>
                 {
                     try
                     {
-                        string html = client.DownloadString(url);
-                        //downloadedUrls.Push(url);
-                        Uri uri = new Uri(url);
+                        string html = new WebClient().DownloadString(url);
                         var links = FindLinks(html, url);
                         foreach (string link in links)
                         {
@@ -203,7 +201,7 @@ namespace WebGrep
                             node.Text = sb.ToString();
 
                             if (searching)
-                                treeView1.BeginInvoke(new Action(() => { treeView1.Nodes.Add(node); treeView1.Sort(); }));
+                                treeView1.BeginInvoke(new Action(() => { treeView1.Nodes.Add(node); }));
                         }
                     }
 
@@ -305,6 +303,7 @@ namespace WebGrep
                     urlTextBox.Enabled = true;
                     regexTextBox.Enabled = true;
                     searchButton.Text = "Search";
+                    treeView1.Sort();
                 }
                 else
                 {
