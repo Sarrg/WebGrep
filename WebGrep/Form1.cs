@@ -24,19 +24,16 @@ namespace WebGrep
         static Regex hyperlinkRegex;
         static Regex hrefRegex;
         static Regex excludingFileTypes;
-        static WebClient client;
         static int max_depth;
         static bool searching;
 
         static ConcurrentStack<string> downloadedUrls;
-        static ConcurrentStack<string> invalidUrls;
         static ConcurrentStack<MatchCollection> matchList;
         static ConcurrentStack<string> linkList;
 
         static ConcurrentStack<Task> runningTasks;
         static CancellationTokenSource processLinksCTS;
 
-        static WebBrowser browser;
         static string currentUrl;
 
         static bool validRegex;
@@ -50,12 +47,9 @@ namespace WebGrep
             hrefRegex = new Regex(@"href=\""(.*?)\""", RegexOptions.Compiled | RegexOptions.Singleline);
             urlRegex = new Regex(@"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|www.)[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/\S*)?$", RegexOptions.Compiled | RegexOptions.Singleline);
             excludingFileTypes = new Regex(@".(?:avi|css|doc|exe|gif|jpeg|jpg|js|mid|midi|mp3|mpg|mpeg|mov|qt|pdf|png|ram|rar|tiff|wav|zip)", RegexOptions.Compiled | RegexOptions.Singleline);
-            client = new WebClient();
-            browser = new WebBrowser();
 
             max_depth = 4;
             downloadedUrls = new ConcurrentStack<string>();
-            invalidUrls = new ConcurrentStack<string>();
             matchList = new ConcurrentStack<MatchCollection>();
             linkList = new ConcurrentStack<string>();
             runningTasks = new ConcurrentStack<Task>();
@@ -63,6 +57,7 @@ namespace WebGrep
             validUrl = false;
             validRegex = false;
             searchButton.Enabled = false;
+            depthTextBox.Text = max_depth.ToString();
         }
 
         public static List<string> FindLinks(string file, string domain)
@@ -86,6 +81,8 @@ namespace WebGrep
                         {
                             Uri subpage = new Uri(url.Split(tokens)[0]);
                             url = subpage.AbsoluteUri;
+                            if (url.ToCharArray()[url.Length - 1] == '/')
+                                url = url.Remove(url.Length - 1);
                             if (!list.Contains(url))
                                 list.Add(url);
                         }
@@ -100,6 +97,8 @@ namespace WebGrep
                             {
                                 Uri subpage = new Uri(url.Split(tokens)[0]);
                                 url = subpage.AbsoluteUri;
+                                if (url.ToCharArray()[url.Length - 1] == '/')
+                                    url = url.Remove(url.Length - 1);
                                 if (!list.Contains(url))
                                     list.Add(url);
                             }
@@ -126,8 +125,6 @@ namespace WebGrep
                     bool success = linkList.TryPop(out url);
                     if (success && !downloadedUrls.Contains(url))
                     {
-                        if (url.ToCharArray()[url.Length - 1] != '/')
-                            url += "/";
                         downloadedUrls.Push(url);
                         Webcrawl(url);
                     }
@@ -144,7 +141,7 @@ namespace WebGrep
 
         public void Webcrawl(string url)
         {
-            if (url.Split('/').Count() - currentUrl.Split('/').Count() < max_depth)
+            if (url.Split('/').Count() - currentUrl.Split('/').Count() <= max_depth)
             {
                 var task = Task.Run(() =>
                 {
@@ -201,15 +198,15 @@ namespace WebGrep
                             node.Text = sb.ToString();
 
                             if (searching)
-                                treeView1.BeginInvoke(new Action(() => { treeView1.Nodes.Add(node); }));
+                                treeView1.BeginInvoke(new Action(() => { treeView1.Nodes.Add(node);}));
                         }
                     }
 
                     catch (Exception ex)
                     {
-                        invalidUrls.Push(url);
+                        System.Console.WriteLine(ex.ToString());
                     }
-                });
+                }, processLinksCTS.Token);
                 runningTasks.Push(task);
             }
         }
@@ -250,7 +247,6 @@ namespace WebGrep
             }
             else
             {
-                
                 try
                 {
                     Regex.Match("", regexTextBox.Text);
@@ -280,12 +276,12 @@ namespace WebGrep
                     searching = true;
                     runningTasks.Clear();
                     downloadedUrls.Clear();
-                    invalidUrls.Clear();
                     matchList.Clear();
                     linkList.Clear();
                     treeView1.Nodes.Clear();
                     urlTextBox.Enabled = false;
                     regexTextBox.Enabled = false;
+                    depthTextBox.Enabled = false;
                     searchButton.Text = "Cancel";
                     
                     currentSearchRegex = new Regex(regexTextBox.Text, RegexOptions.Compiled | RegexOptions.Singleline);
@@ -302,6 +298,7 @@ namespace WebGrep
                     searching = false;
                     urlTextBox.Enabled = true;
                     regexTextBox.Enabled = true;
+                    depthTextBox.Enabled = true;
                     searchButton.Text = "Search";
                     treeView1.Sort();
                 }
@@ -327,6 +324,22 @@ namespace WebGrep
                 web.SetWebpage(uri);
                 web.SetMatches(m);
                 web.Show();
+            }
+        }
+
+        private void depthTextBox_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int depth = Convert.ToInt32(depthTextBox.Text);
+                if(depth > 0 && depth < 10)
+                {
+                    max_depth = depth;
+                }
+            }
+            catch
+            {
+                depthTextBox.Text = max_depth.ToString();
             }
         }
     }

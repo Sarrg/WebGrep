@@ -34,6 +34,8 @@
             this.urlTextBox = new System.Windows.Forms.TextBox();
             this.regexTextBox = new System.Windows.Forms.TextBox();
             this.searchButton = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.depthTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // treeView1
@@ -41,9 +43,9 @@
             this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.treeView1.Location = new System.Drawing.Point(12, 59);
+            this.treeView1.Location = new System.Drawing.Point(12, 85);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(776, 379);
+            this.treeView1.Size = new System.Drawing.Size(776, 353);
             this.treeView1.TabIndex = 0;
             this.treeView1.DoubleClick += new System.EventHandler(this.treeView1_DoubleClick);
             // 
@@ -92,23 +94,48 @@
             this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.searchButton.Location = new System.Drawing.Point(713, 9);
             this.searchButton.Name = "searchButton";
-            this.searchButton.Size = new System.Drawing.Size(75, 43);
+            this.searchButton.Size = new System.Drawing.Size(75, 64);
             this.searchButton.TabIndex = 5;
             this.searchButton.Text = "Search";
             this.searchButton.UseVisualStyleBackColor = true;
             this.searchButton.Click += new System.EventHandler(this.searchButton_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(12, 58);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(49, 15);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Depth:";
+            // 
+            // depthTextBox
+            // 
+            this.depthTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.depthTextBox.Location = new System.Drawing.Point(67, 56);
+            this.depthTextBox.MaximumSize = new System.Drawing.Size(81, 20);
+            this.depthTextBox.MinimumSize = new System.Drawing.Size(81, 20);
+            this.depthTextBox.Name = "depthTextBox";
+            this.depthTextBox.Size = new System.Drawing.Size(81, 20);
+            this.depthTextBox.TabIndex = 7;
+            this.depthTextBox.TextChanged += new System.EventHandler(this.depthTextBox_TextChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.depthTextBox);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.searchButton);
             this.Controls.Add(this.regexTextBox);
             this.Controls.Add(this.urlTextBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.treeView1);
+            this.MinimumSize = new System.Drawing.Size(400, 200);
             this.Name = "Form1";
             this.Text = "WebGrep";
             this.ResumeLayout(false);
@@ -124,6 +151,8 @@
         private System.Windows.Forms.TextBox urlTextBox;
         private System.Windows.Forms.TextBox regexTextBox;
         private System.Windows.Forms.Button searchButton;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox depthTextBox;
     }
 }
 
